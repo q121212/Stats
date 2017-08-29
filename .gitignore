@@ -1,2 +1,5 @@
 ml/.ipynb_checkpoints/
 ml/prediction_to_repeats/data/
+ml/prediction_to_repeats/pers_data.py
+ml/prediction_to_repeats/.ipynb_checkpoints/
+ml/prediction_to_repeats/__pycache__/

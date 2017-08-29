@@ -1,0 +1,70 @@
+# -*- coding: utf-8 -*-
+import datetime
+
+SQL_QUERY_TODAY='''
+-- Unloading many tt_list columns + column with all_num_of_repeat EIs + columns with num_of_repeat EIs (for 2,5,10,30,60 last days) + MITYPE, MIPRIORITY, MIIMPACT + NumWFMforEI & TECHNICAL_DISTRICT & Last_WFM_days_waiting (in case EI have wfm) + EIDayOfWeek, EIHourCreate
+SELECT CLIENT_CATEGORY AS MK, SEGMENT, SERVICE-2000000900000 AS Service, channeltype-2000000900000 AS Channeltype, source-2000000900000 AS Source, football, DECLARED_FAULT, CREATE_DATE, CLOSETIME, all_num_of_repeat, num_of_repeat2, num_of_repeat5, num_of_repeat10, num_of_repeat30, num_of_repeat60, MITYPE, MIPRIORITY, MIIMPACT, TECHNICAL_DISTRICT, NumWFMforEI,Last_WFM_days_waiting, EIDayOfWeek, EIHourCreate FROM LAST_REPORTS.tt_list ttl
+LEFT OUTER JOIN (
+		-- Number of repeated EIs for CHANNELREQUESTID
+		SELECT count(REQUEST_ID) AS all_num_of_repeat, CHANNELREQUESTID FROM LAST_REPORTS.tt_list
+		GROUP BY CHANNELREQUESTID
+		ORDER BY all_num_of_repeat DESC) l1
+ON l1.CHANNELREQUESTID = ttl.CHANNELREQUESTID
+LEFT OUTER JOIN (
+		-- Number of repeated EIs for CHANNELREQUESTID
+		SELECT count(REQUEST_ID) AS num_of_repeat2, CHANNELREQUESTID FROM LAST_REPORTS.tt_list
+      WHERE CREATE_DATE > UNIX_TIMESTAMP(now()) - 2*24*3600
+		GROUP BY CHANNELREQUESTID
+		ORDER BY num_of_repeat2 DESC) l2
+ON l2.CHANNELREQUESTID = ttl.CHANNELREQUESTID
+LEFT OUTER JOIN (
+		-- Number of repeated EIs for CHANNELREQUESTID
+		SELECT count(REQUEST_ID) AS num_of_repeat5, CHANNELREQUESTID FROM LAST_REPORTS.tt_list
+      WHERE CREATE_DATE > UNIX_TIMESTAMP(now()) - 5*24*3600
+		GROUP BY CHANNELREQUESTID
+		ORDER BY num_of_repeat5 DESC) l3
+ON l3.CHANNELREQUESTID = ttl.CHANNELREQUESTID
+LEFT OUTER JOIN (
+		-- Number of repeated EIs for CHANNELREQUESTID
+		SELECT count(REQUEST_ID) AS num_of_repeat10, CHANNELREQUESTID FROM LAST_REPORTS.tt_list
+      WHERE CREATE_DATE > UNIX_TIMESTAMP(now()) - 10*24*3600
+		GROUP BY CHANNELREQUESTID
+		ORDER BY num_of_repeat10 DESC) l4
+ON l4.CHANNELREQUESTID = ttl.CHANNELREQUESTID
+LEFT OUTER JOIN (
+		-- Number of repeated EIs for CHANNELREQUESTID
+		SELECT count(REQUEST_ID) AS num_of_repeat30, CHANNELREQUESTID FROM LAST_REPORTS.tt_list
+      WHERE CREATE_DATE > UNIX_TIMESTAMP(now()) - 30*24*3600
+		GROUP BY CHANNELREQUESTID
+		ORDER BY num_of_repeat30 DESC) l5
+ON l5.CHANNELREQUESTID = ttl.CHANNELREQUESTID
+LEFT OUTER JOIN (
+		-- Number of repeated EIs for CHANNELREQUESTID
+		SELECT count(REQUEST_ID) AS num_of_repeat60, CHANNELREQUESTID FROM LAST_REPORTS.tt_list
+      WHERE CREATE_DATE > UNIX_TIMESTAMP(now()) - 60*24*3600
+		GROUP BY CHANNELREQUESTID
+		ORDER BY num_of_repeat60 DESC) l6
+ON l6.CHANNELREQUESTID = ttl.CHANNELREQUESTID
+LEFT OUTER JOIN (
+		SELECT si_id, TECHNICAL_DISTRICT, NumWFMforEI, (day(from_unixtime(timeslot_end))-day(from_unixtime(WFM_create_date))) AS Last_WFM_days_waiting FROM (SELECT * FROM (SELECT si_id AS siid, MAX(CREATE_DATE) AS WFM_create_date, TECHNICAL_DISTRICT, COUNT(si_id) AS NumWFMforEI FROM LAST_REPORTS.tt_wfm
+    GROUP BY TECHNICAL_DISTRICT, si_id
+    ORDER BY si_id ) dWFM
+    LEFT OUTER JOIN (SELECT si_id, timeslot_end, CREATE_DATE AS LAST_WFM_CREATE_DATE FROM LAST_REPORTS.tt_wfm) wfm
+    ON dWFM.WFM_create_date = wfm.LAST_WFM_CREATE_DATE AND dWFM.siid = wfm.si_id) df) l7
+ON l7.si_id = ttl.REQUEST_ID
+LEFT OUTER JOIN (
+		SELECT REQUEST_ID AS MI, MITYPE, PRIORITY AS MIPRIORITY, IMPACT AS MIIMPACT from LAST_REPORTS.tt_mi
+    ) l8
+ON l8.MI = ttl.MI_ID
+LEFT OUTER JOIN (
+		SELECT REQUEST_ID, DAYOFWEEK(FROM_UNIXTIME(CREATE_DATE)) AS EIDayOfWeek, HOUR(FROM_UNIXTIME(CREATE_DATE)) AS EIHourCreate FROM LAST_REPORTS.tt_list
+    ) l9
+ON l9.REQUEST_ID = ttl.REQUEST_ID
+WHERE ttl.CREATE_DATE>{0} -- from Aug 2017
+-- w31 7/08 1502064000    w32 14/08 1502668800  w33 21/08 1503273600
+
+'''.format(datetime.datetime(datetime.datetime.today().year, datetime.datetime.today().month, datetime.datetime.today().day).timestamp())
+
+SQL_QUERY_FIND_EIs='''
+select * from LAST_REPORTS.tt_list
+where CREATE_DATE IN {0}'''
