@@ -3,7 +3,7 @@ import datetime
 
 SQL_QUERY_TODAY='''
 -- Unloading many tt_list columns + column with all_num_of_repeat EIs + columns with num_of_repeat EIs (for 2,5,10,30,60 last days) + MITYPE, MIPRIORITY, MIIMPACT + NumWFMforEI & TECHNICAL_DISTRICT & Last_WFM_days_waiting (in case EI have wfm) + EIDayOfWeek, EIHourCreate
-SELECT CLIENT_CATEGORY AS MK, SEGMENT, SERVICE-2000000900000 AS Service, channeltype-2000000900000 AS Channeltype, source-2000000900000 AS Source, football, DECLARED_FAULT, CREATE_DATE, CLOSETIME, all_num_of_repeat, num_of_repeat2, num_of_repeat5, num_of_repeat10, num_of_repeat30, num_of_repeat60, MITYPE, MIPRIORITY, MIIMPACT, TECHNICAL_DISTRICT, NumWFMforEI,Last_WFM_days_waiting, EIDayOfWeek, EIHourCreate FROM LAST_REPORTS.tt_list ttl
+SELECT ttl.REQUEST_ID AS EI, CLIENT_CATEGORY AS MK, SEGMENT, SERVICE-2000000900000 AS Service, channeltype-2000000900000 AS Channeltype, source-2000000900000 AS Source, football, DECLARED_FAULT, CREATE_DATE, CLOSETIME, all_num_of_repeat, num_of_repeat2, num_of_repeat5, num_of_repeat10, num_of_repeat30, num_of_repeat60, MITYPE, MIPRIORITY, MIIMPACT, TECHNICAL_DISTRICT, NumWFMforEI,Last_WFM_days_waiting, EIDayOfWeek, EIHourCreate FROM LAST_REPORTS.tt_list ttl
 LEFT OUTER JOIN (
 		-- Number of repeated EIs for CHANNELREQUESTID
 		SELECT count(REQUEST_ID) AS all_num_of_repeat, CHANNELREQUESTID FROM LAST_REPORTS.tt_list
