@@ -15,5 +15,8 @@ for word in match_pattern:
 frequency_list = frequency.keys()
  
 
-for word in frequency_list:
-    print(word, frequency[word])
+# for word in frequency_list:
+#     print(word, frequency[word])
+
+for freq, word in zip(frequency.keys(), frequency.values()):
+	print(freq,word)
