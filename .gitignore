@@ -1,7 +1,15 @@
-ml/.ipynb_checkpoints/
+<<<<<<< HEAD
+ml/prediction_to_repeats/data/
+ml/prediction_to_repeats/pers_data.py
+ml/prediction_to_repeats/.ipynb_checkpoints/
+ml/prediction_to_repeats/__pycache__/
+practice/data/
+*/.ipynb_checkpoints/
+=======
 <<<<<<< HEAD
 ml/prediction_to_repeats/data/
 ml/prediction_to_repeats/.ipynb_checkpoints/
 =======
 ml/prediction_to_repeats/data/
 >>>>>>> ce1f9645909d2461d366616e0d064c9891067ad2
+>>>>>>> origin/master
